@@ -124,11 +124,33 @@ export default function DeployContract({
   }
 
   async function templateSelectHandler(index) {
-    const response = await fetch(contracts[index]?.wasmfile);
-    const bytes = await response.arrayBuffer();
-    setFileContent(() => bytes);
-    setTemplateIndex(() => index);
+    try {
+      const file = contracts[index]?.wasmfile;
+      if (!file) {
+        throw new Error("WASM file not found for the selected index.");
+      }
+
+      const response = await fetch(file);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.statusText}`);
+      }
+
+      const bytes = await response.arrayBuffer();
+      setFileContent(bytes);
+      setTemplateIndex(index);
+      setFile(null);
+    } catch (error) {
+      console.error("Error in templateSelectHandler:", error);
+    }
   }
+
+  // async function templateSelectHandler(index) {
+  //   const file = contracts[index]?.wasmfile;
+  //   const response = await fetch(file);
+  //   const bytes = await response.arrayBuffer();
+  //   setFileContent(() => bytes);
+  //   setTemplateIndex(() => index);
+  // }
 
   const handleCodeLinkRedirect = (index) => {
     window.open(`${contracts[index].codeLink}`, "_blank");
