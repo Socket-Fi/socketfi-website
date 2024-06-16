@@ -124,14 +124,16 @@ export default function DeployContract({
   }
 
   async function templateSelectHandler(index) {
-    const files = [];
+    const wasmfiles = [];
     for (let contract of contracts) {
-      files.push(contract.wasmfile);
+      const wasmValue = contract.wasmfile;
+      const response = await fetch(wasmValue);
+      const bytes = await response.arrayBuffer();
+
+      wasmfiles.push(bytes);
     }
-    const fileSelect = files[index];
-    const response = await fetch(fileSelect);
-    const bytes = await response.arrayBuffer();
-    setFileContent(() => bytes);
+
+    setFileContent(() => wasmfiles[index]);
     setTemplateIndex(() => index);
     setFile(null);
   }
