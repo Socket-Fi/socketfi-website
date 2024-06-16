@@ -39,7 +39,6 @@ export default function DeployContract({
   const [templateIndex, setTemplateIndex] = useState(null);
 
   const handleFileChange = (event) => {
-    setTemplateIndex(() => null);
     const selectedFile = event.target.files[0];
     setFile(selectedFile);
 
@@ -125,11 +124,10 @@ export default function DeployContract({
   }
 
   async function templateSelectHandler(index) {
-    setTemplateIndex(() => index);
-    const response = await fetch(contracts[index].wasmfile);
+    const response = await fetch(contracts[index]?.wasmfile);
     const bytes = await response.arrayBuffer();
     setFileContent(() => bytes);
-    setFile(() => null);
+    setTemplateIndex(() => index);
   }
 
   const handleCodeLinkRedirect = (index) => {
