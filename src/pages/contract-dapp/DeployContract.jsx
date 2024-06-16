@@ -123,45 +123,45 @@ export default function DeployContract({
     }
   }
 
-  // async function templateSelectHandler(index) {
-  //   const file = contracts[index]?.wasmfile;
-
-  //   const response = await fetch(file);
-  //   const bytes = await response.arrayBuffer();
-  //   setFileContent(() => bytes);
-  //   setTemplateIndex(() => index);
-  // }
-
   async function templateSelectHandler(index) {
-    try {
-      const file = contracts[index]?.wasmfile;
-      if (!file) {
-        throw new Error("WASM file not found for the selected index.");
-      }
+    const file = contracts[index]?.wasmfile;
 
-      const response = await fetch(file);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch file: ${response.statusText}`);
-      }
-
-      const blob = await response.blob();
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        const arrayBuffer = reader.result;
-        setFileContent(arrayBuffer);
-        setTemplateIndex(index);
-      };
-
-      reader.onerror = () => {
-        throw new Error("Error reading the file");
-      };
-
-      reader.readAsArrayBuffer(blob);
-    } catch (error) {
-      console.error("Error in templateSelectHandler:", error);
-    }
+    const response = await fetch(file);
+    const bytes = await response.arrayBuffer();
+    setFileContent(() => bytes);
+    setTemplateIndex(() => index);
   }
+
+  // async function templateSelectHandler(index) {
+  //   try {
+  //     const file = contracts[index]?.wasmfile;
+  //     if (!file) {
+  //       throw new Error("WASM file not found for the selected index.");
+  //     }
+
+  //     const response = await fetch(file);
+  //     if (!response.ok) {
+  //       throw new Error(`Failed to fetch file: ${response.statusText}`);
+  //     }
+
+  //     const blob = await response.blob();
+  //     const reader = new FileReader();
+
+  //     reader.onloadend = () => {
+  //       const arrayBuffer = reader.result;
+  //       setFileContent(arrayBuffer);
+  //       setTemplateIndex(index);
+  //     };
+
+  //     reader.onerror = () => {
+  //       throw new Error("Error reading the file");
+  //     };
+
+  //     reader.readAsArrayBuffer(blob);
+  //   } catch (error) {
+  //     console.error("Error in templateSelectHandler:", error);
+  //   }
+  // }
 
   const handleCodeLinkRedirect = (index) => {
     window.open(`${contracts[index].codeLink}`, "_blank");

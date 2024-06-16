@@ -1,4 +1,4 @@
-const CONTRACT_BASE_URL = "../target/wasm32-unknown-unknown/release";
+const CONTRACT_BASE_URL = "../public/wasm";
 const CODE_BASE_URL = "https://github.com/stellar/soroban-examples";
 
 export const contracts = [
