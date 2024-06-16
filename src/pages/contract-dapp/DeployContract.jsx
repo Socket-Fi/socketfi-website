@@ -79,13 +79,6 @@ export default function DeployContract({
 
     try {
       setConnecting(() => true);
-
-      if (!file) {
-        const fileTemplate = contracts[templateIndex]?.wasmfile;
-        const response = await fetch(fileTemplate);
-        const bytes = await response.arrayBuffer();
-        setFileContent(() => bytes);
-      }
       const txBuilderUpload = await getTxBuilder(
         userKey,
         BASE_FEE,
@@ -131,6 +124,14 @@ export default function DeployContract({
   }
 
   async function templateSelectHandler(index) {
+    const files = [];
+    for (let contract of contracts) {
+      files.push(contract.wasmfile);
+    }
+    const fileSelect = files[index];
+    const response = await fetch(fileSelect);
+    const bytes = await response.arrayBuffer();
+    setFileContent(() => bytes);
     setTemplateIndex(() => index);
     setFile(null);
   }
