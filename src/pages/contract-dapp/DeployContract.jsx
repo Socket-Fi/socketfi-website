@@ -44,6 +44,7 @@ export default function DeployContract({
 
     const reader = new FileReader();
     reader.onload = async (event) => {
+      setTemplateIndex(null);
       const fileBuffer = event.target.result;
       setFileContent(() => fileBuffer);
     };
@@ -130,6 +131,7 @@ export default function DeployContract({
     const bytes = await response.arrayBuffer();
     setFileContent(() => bytes);
     setTemplateIndex(() => index);
+    setFile(() => null);
   }
 
   // async function templateSelectHandler(index) {
