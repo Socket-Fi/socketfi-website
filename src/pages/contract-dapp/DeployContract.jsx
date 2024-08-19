@@ -25,7 +25,6 @@ import {
 
 import XLMlogo from "../../assets/2024.svg";
 import { contracts } from "../../contract";
-import { nativeToScVal } from "stellar-sdk";
 
 export default function DeployContract({
   userKey,
