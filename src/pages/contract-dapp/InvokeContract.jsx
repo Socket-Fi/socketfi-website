@@ -1,7 +1,16 @@
 import React, { useState } from "react";
-import { ScInt, Soroban, StrKey, nativeToScVal } from "@stellar/stellar-sdk";
+import {
+  ScInt,
+  Soroban,
+  StrKey,
+  nativeToScVal,
+  Address,
+  Account,
+  MuxedAccount,
+  Horizon,
+  encodeMuxedAccount,
+} from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
-// import arrayBufferToBuffer from "arraybuffer-to-buffer";
 
 import {
   server,
@@ -12,9 +21,10 @@ import {
   submitTx,
   accountToScVal,
   anyInvoke,
+  loadContract,
 } from "../../utils/soroban";
 
-import { Copy, AddCircle, CloseCircle } from "iconsax-react";
+import { Copy, AddCircle, CloseCircle, DocumentCode } from "iconsax-react";
 import XLMlogo from "../../assets/2024.svg";
 
 export default function InvokeContract({
@@ -34,10 +44,16 @@ export default function InvokeContract({
   const [argsCount, setArgsCount] = useState([]);
   const [args, setArgs] = useState([]);
   const [operation, setOperation] = useState("");
+  const [file, setFile] = useState(null);
+  const [fileContent, setFileContent] = useState(null);
   const memo = "mint tokens";
+  const smartWalletContract =
+    "CABH4AZ26PTXJGHPNO7UOEYYYDHU5FZQGUV7N6G5JYK2FWVOLM3HJW2Q";
 
   const selectedNetwork = FUTURENET_DETAILS;
   const { network, networkPassphrase } = selectedNetwork;
+
+  // console.log("the args are", args);
 
   function addArgsHandler() {
     let curCount = argsCount.length;
@@ -47,11 +63,33 @@ export default function InvokeContract({
   }
 
   function deleteArgsHandler(selectedArg) {
+    setFile(null);
+    setFileContent(null);
     setArgsCount((prevArgsCount) =>
       prevArgsCount.filter((arg) => arg !== selectedArg)
     );
 
     setArgs((prevArgs) => prevArgs.filter((arg) => arg.id !== selectedArg));
+  }
+
+  // function stringToArray(input) {
+  //   if (!!input) {
+  //     return input
+  //       .split(",")
+  //       .map((item) => item.trim())
+  //       .filter((item) => item !== "")
+  //       .map(Number);
+  //   }
+  // }
+
+  function stringToArray(input) {
+    if (!!input) {
+      return input
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "");
+    }
+    return [];
   }
 
   function processArgs(arg) {
@@ -66,23 +104,64 @@ export default function InvokeContract({
       return nativeToScVal(Number(arg.value)); // to
     } else if (arg.type === "u64") {
       return nativeToScVal(Number(arg.value)); // to
+    } else if (arg.type === "symbol") {
+      return nativeToScVal(arg.value, { type: "symbol" }); // to
+    } else if (arg.type === "Wasm") {
+      return;
+    } else if (arg.type === "vec") {
+      const arrs = stringToArray(arg.value);
+      const argsare = nativeToScVal(arrs, {
+        type: ["u64", "u64", "symbol"],
+      }); // to
+
+      return argsare;
     } else {
       return nativeToScVal(arg.value);
     }
   }
 
-  async function anyInvokeHandler() {
+  async function anyInvokeHandler(e) {
+    e.preventDefault();
     try {
       setConnecting(() => true);
+
+      const url2 = "https://horizon-futurenet.stellar.org";
+      let hserver = new Horizon.Server(url2);
+
+      const accountLoaded = await hserver.loadAccount(userKey);
+      console.log("it is good ghere");
+      const testMux = new MuxedAccount(accountLoaded, "111");
+      console.log("the mux is", testMux);
+
+      let loadedWasm;
+
+      if (fileContent !== null) {
+        const txBuilderUpload = await getTxBuilder(
+          userKey,
+          xlmToStroop(1).toString(),
+          server,
+          selectedNetwork.networkPassphrase
+        );
+
+        const wasm = fileContent;
+
+        const signedXdr = await loadContract(wasm, txBuilderUpload);
+        const txHash = await submitTx(signedXdr, networkPassphrase, server);
+        loadedWasm = txHash.returnValue._value;
+      }
+
       const invokeArgs = [operation];
       for (const eachArg of args) {
-        invokeArgs.push(processArgs(eachArg));
+        if (eachArg?.type === "Wasm") {
+          invokeArgs.push(nativeToScVal(loadedWasm));
+        } else {
+          invokeArgs.push(processArgs(eachArg));
+        }
       }
-      console.log("the invoke arguments are", invokeArgs);
 
       const txBuiderAnyInvoke = await getTxBuilder(
         userKey,
-        xlmToStroop(10).toString(),
+        xlmToStroop(1).toString(),
         server,
         selectedNetwork.networkPassphrase
       );
@@ -94,12 +173,14 @@ export default function InvokeContract({
         txBuiderAnyInvoke,
         server
       );
-      console.log("transaction xdr", xdr);
-      //   console.log("decimal processing", new ScInt(7));
 
       const signedXdr = await signTransaction(xdr, { network: "FUTURENET" });
 
       const result = await submitTx(signedXdr, networkPassphrase, server);
+      const contractId = StrKey.encodeContract(
+        result.returnValue._value._value
+      );
+      console.log("protocol token id is", contractId);
       console.log("invoke result", result);
     } catch (e) {
       alert(e.message);
@@ -127,34 +208,17 @@ export default function InvokeContract({
       });
   };
 
-  async function mintSubmitHandler(e) {
-    setMintStatus(() => "SIGN");
-    e.preventDefault();
-    const quantity = Soroban.parseTokenAmount(mintAmount, decimal);
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
 
-    const txBuiderMint = await getTxBuilder(
-      userKey,
-      xlmToStroop(100).toString(),
-      server,
-      selectedNetwork.networkPassphrase
-    );
-
-    const xdr = await mintTokens({
-      tokenId: selectedToken,
-      quantity: Number(quantity),
-      destinationPubKey: receiver,
-      memo: memo,
-      txBuilderAdmin: txBuiderMint,
-      server,
-    });
-
-    // const signedTx = await signTx(xdr, userKey, FUTURENET_DETAILS);
-    const signature = await signTransaction(xdr, { network: "TESTNET" });
-    setMintStatus(() => "MINTING");
-
-    const result = await submitTx(signature, networkPassphrase, server);
-    setMintStatus(() => "PRE");
-  }
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const fileBuffer = event.target.result;
+      setFileContent(() => fileBuffer);
+    };
+    reader.readAsArrayBuffer(selectedFile);
+  };
 
   return (
     <div className="overflow-x-hidden bg-gray-100">
@@ -173,7 +237,7 @@ export default function InvokeContract({
                       <div>
                         <div className=" p-2 ">
                           <h3 className="text-2xl font-normal  text-gray-900">
-                            Enter contract ID
+                            Your Smart Contract ID is:
                           </h3>
                         </div>
                         <div className="mt-2.5 relative">
@@ -270,22 +334,9 @@ export default function InvokeContract({
                               className="mt-1 relative flex gap-2"
                               key={index}
                             >
-                              <input
-                                onChange={(e) => {
-                                  setArgs(
-                                    args.map((cur) =>
-                                      cur.id === arg
-                                        ? { ...cur, name: e.target.value }
-                                        : cur
-                                    )
-                                  );
-                                }}
-                                type="text"
-                                name=""
-                                id=""
-                                placeholder="Argument name"
-                                className="block px-4 py-4 text-black placeholder-gray-500 w-[200px] transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
-                              />
+                              <div className="block px-4 py-4 text-black placeholder-gray-500 w-[200px] transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600">
+                                {`Arg${index + 1}`}
+                              </div>
                               <div className="">
                                 <select
                                   className="block px-4 py-4 h-full text-black placeholder-gray-500 w-[150px] transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
@@ -297,7 +348,11 @@ export default function InvokeContract({
                                     setArgs(
                                       args.map((cur) =>
                                         cur.id === arg
-                                          ? { ...cur, type: e.target.value }
+                                          ? {
+                                              ...cur,
+                                              name: `Arg${index + 1}`,
+                                              type: e.target.value,
+                                            }
                                           : cur
                                       )
                                     );
@@ -312,24 +367,78 @@ export default function InvokeContract({
                                   <option value="String">String</option>
                                   <option value="symbol">symbol</option>
                                   <option value="Address">Address</option>
+                                  <option value="Wasm">{"Wasm"}</option>
+                                  <option value="vec">{"vec<u64>"}</option>
                                 </select>
                               </div>
-                              <input
-                                onChange={(e) => {
-                                  setArgs(
-                                    args.map((cur) =>
-                                      cur.id === arg
-                                        ? { ...cur, value: e.target.value }
-                                        : cur
-                                    )
-                                  );
-                                }}
-                                type="text"
-                                name=""
-                                id=""
-                                placeholder="Argument value"
-                                className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
-                              />
+                              {args.find((cur) => cur.id === arg)?.type ===
+                              "Wasm" ? (
+                                // <input
+                                //   onChange={(e) => {
+                                //     setArgs(
+                                //       args.map((cur) =>
+                                //         cur.id === arg
+                                //           ? { ...cur, value: e.target.value }
+                                //           : cur
+                                //       )
+                                //     );
+                                //   }}
+                                //   // onChange={(e) => setIvalue(e.target.value)}
+                                //   type="text"
+                                //   name=""
+                                //   id=""
+                                //   placeholder="Upload contract file here (.wasm)"
+                                //   className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                                // />
+
+                                <div className="relative block w-full ">
+                                  <div className="relative px-4 py-[7px] flex  overflow-hidden bg-white justify-between items-center border border-gray-200 rounded-md">
+                                    <div>
+                                      <div className="flex items-center sm:items-center ">
+                                        <p className=" text-normal font-bold text-gray-500  font-pj">
+                                          {file === null
+                                            ? "Upload contract file here (.wasm)"
+                                            : `${file?.name} `}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <div className=" flex justify-center bg-[#FF8A65] bg-opacity-25 p-1 rounded-full">
+                                      <input
+                                        type="file"
+                                        accept=".wasm"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                        id="file-upload"
+                                      />
+                                      <label
+                                        htmlFor="file-upload"
+                                        className="cursor-pointer inline-flex items-center  border border-transparent text-base leading-6 font-medium rounded-md  focus:shadow-outline-indigo  transition ease-in-out duration-150"
+                                      >
+                                        <AddCircle size="32" color="#FF8A65" />
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <input
+                                  onChange={(e) => {
+                                    setArgs(
+                                      args.map((cur) =>
+                                        cur.id === arg
+                                          ? { ...cur, value: e.target.value }
+                                          : cur
+                                      )
+                                    );
+                                  }}
+                                  // onChange={(e) => setIvalue(e.target.value)}
+                                  type="text"
+                                  name=""
+                                  id=""
+                                  placeholder="Argument value"
+                                  className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                                />
+                              )}
                               <div className="sm:col-span-2 flex  rounded-xl items-center justify-between  ">
                                 <button
                                   onClick={() => deleteArgsHandler(arg)}
@@ -347,29 +456,35 @@ export default function InvokeContract({
                   )}
                 </>
               )}
-              {userKey.length > 0 &&
-                (loadedContractId?.length > 0 ? (
-                  <div className="sm:col-span-2">
-                    <button
-                      // onClick={loadContractHandler}
-                      onClick={anyInvokeHandler}
-                      className="relative inline-flex items-center justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                      role="button"
-                    >
-                      {connecting ? "Processing..." : "Invoke conract"}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="sm:col-span-2">
-                    <button
-                      onClick={loadContractHandler}
-                      className="relative inline-flex items-center justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                      role="button"
-                    >
-                      Load contract
-                    </button>
-                  </div>
-                ))}
+
+              <div className="sm:col-span-2">
+                <button
+                  // onClick={loadContractHandler}
+                  onClick={anyInvokeHandler}
+                  // onClick={(e) => setIvalue(e.target.value)}
+                  className="relative inline-flex items-center justify-center  w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 opacity-60"
+                  role="button"
+                >
+                  {connecting
+                    ? "Processing..."
+                    : "Login to or Create Smart Wallet using Twitter"}
+                </button>
+              </div>
+              {userKey.length > 0 && (
+                <div className="sm:col-span-2">
+                  <button
+                    // onClick={loadContractHandler}
+                    onClick={anyInvokeHandler}
+                    // onClick={(e) => setIvalue(e.target.value)}
+                    className="relative inline-flex items-center mt-4 justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    role="button"
+                  >
+                    {connecting
+                      ? "Processing..."
+                      : "Login to or Create Smart Wallet using External Wallet"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

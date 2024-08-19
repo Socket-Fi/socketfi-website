@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
 import BigNumber from "bignumber.js";
 import {
   isConnected,
   getPublicKey,
-  signAuthEntry,
   signTransaction,
   signBlob,
   isAllowed,

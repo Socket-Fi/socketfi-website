@@ -6,6 +6,7 @@ import Home from "./pages/home/Home";
 import Header from "./common/Header";
 import ContractDapp from "./pages/contract-dapp/ContractDapp";
 import Playground from "./pages/dapp-playground/Playground";
+import Wallet from "./pages/socketfi-wallet/Wallet";
 import DappComponents from "./pages/dapp-components/DappComponents";
 
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
@@ -29,7 +30,7 @@ function App() {
     fetchConnectedUser();
   }, [userkey, network, isConnected, connecting]);
   return (
-    <div className="bg-gray-100">
+    <div className="bg-gray-50">
       <Router>
         <Header
           setNetwork={setNetwork}
@@ -40,9 +41,9 @@ function App() {
           connecting={connecting}
         />
         <Routes>
-          <Route path="/" element={<Home />} index />
+          {/* <Route path="/" element={<Home />} index /> */}
           <Route
-            path="/contracts"
+            path="/"
             element={
               <ContractDapp
                 userKey={userkey}
@@ -54,9 +55,9 @@ function App() {
               />
             }
           />
-          <Route path="/playground" element={<Playground />} />
+          {/* <Route path="/playground" element={<Wallet />} />
 
-          <Route path="/sorobuild-ui" element={<DappComponents />} />
+          <Route path="/sorobuild-ui" element={<DappComponents />} /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

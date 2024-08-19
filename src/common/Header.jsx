@@ -33,7 +33,10 @@ export default function Header({
   }
 
   return (
-    <header className=" relative py-4 md:py-6" x-data="{expanded: false}">
+    <header
+      className=" relative py-4 md:py-6 bg-gray-100"
+      x-data="{expanded: false}"
+    >
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between ">
           <div className="flex-shrink-0">
@@ -42,7 +45,8 @@ export default function Header({
               title=""
               className="flex rounded items-center outline-none   font-bold text-xl gap-1 "
             >
-              <img className="w-auto h-10 " src={Logo} alt="" />
+              {/* <img className="w-auto h-10 " src={Logo} alt="" /> */}
+              <p>SocketFi</p>
             </Link>
           </div>
 
@@ -90,7 +94,7 @@ export default function Header({
             </button>
           </div>
 
-          <div className="hidden lg:flex lg:ml-16 lg:items-center lg:justify-center lg:space-x-10 xl:space-x-16">
+          {/* <div className="hidden lg:flex lg:ml-16 lg:items-center lg:justify-center lg:space-x-10 xl:space-x-16">
             <Link
               to="/contracts"
               title=""
@@ -117,10 +121,10 @@ export default function Header({
               {" "}
               SoroBuild UI
             </Link>
-          </div>
+          </div> */}
 
           <div className="hidden lg:ml-auto lg:flex lg:items-center lg:space-x-10">
-            <a
+            {/* <a
               href="https://docs.sorobuild.io/"
               title=""
               className="text-base font-medium  transition-all duration-200 rounded font-pj hover:text-opacity-50 "
@@ -128,7 +132,7 @@ export default function Header({
             >
               {" "}
               Documentation
-            </a>
+            </a> */}
 
             {!isWalletInstalled ? (
               <a

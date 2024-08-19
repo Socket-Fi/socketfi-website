@@ -1,1 +1,0 @@
-/Users/sholadev/Desktop/Soroban/soroban-examples-main/mint-lock/target/wasm32-unknown-unknown/release/soroban_mint_lock_contract.wasm: /Users/sholadev/Desktop/Soroban/soroban-examples-main/mint-lock/src/lib.rs /Users/sholadev/Desktop/Soroban/soroban-examples-main/mint-lock/src/test.rs

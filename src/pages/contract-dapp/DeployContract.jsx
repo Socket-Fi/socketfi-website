@@ -25,6 +25,7 @@ import {
 
 import XLMlogo from "../../assets/2024.svg";
 import { contracts } from "../../contract";
+import { nativeToScVal } from "stellar-sdk";
 
 export default function DeployContract({
   userKey,
@@ -44,7 +45,6 @@ export default function DeployContract({
 
     const reader = new FileReader();
     reader.onload = async (event) => {
-      setTemplateIndex(null);
       const fileBuffer = event.target.result;
       setFileContent(() => fileBuffer);
     };
@@ -92,6 +92,7 @@ export default function DeployContract({
       const signedXdr = await loadContract(wasm, txBuilderUpload);
       const txHash = await submitTx(signedXdr, networkPassphrase, server);
       const loadedWasmHash = txHash.returnValue._value;
+
       //   console.log("returned xdr", loadedWasmHash);
 
       const senderAddr = new Address(userKey);
@@ -306,15 +307,17 @@ export default function DeployContract({
             )}
 
             {userKey?.length > 0 && (
-              <div className="sm:col-span-2">
-                <button
-                  onClick={handleCreateContract}
-                  className="relative inline-flex items-center justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
-                  role="button"
-                >
-                  {connecting ? "Processing..." : "Create contract"}
-                </button>
-              </div>
+              <>
+                <div className="sm:col-span-2">
+                  <button
+                    onClick={handleCreateContract}
+                    className="relative inline-flex items-center justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                    role="button"
+                  >
+                    {connecting ? "Processing..." : "Create contract"}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
