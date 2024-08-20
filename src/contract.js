@@ -22,4 +22,10 @@ export const contracts = [
     wasmfile: `${CONTRACT_BASE_URL}/soroban_mint_lock_contract.wasm`,
     codeLink: `${CODE_BASE_URL}/tree/main/mint-lock`,
   },
+  {
+    title: "Smart sub-account",
+    description: "Smart account",
+    wasmfile: `${CONTRACT_BASE_URL}/socketfi_smart_subaccount.wasm`,
+    codeLink: `${CODE_BASE_URL}`,
+  },
 ];

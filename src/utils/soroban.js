@@ -100,27 +100,61 @@ export const simulateTx = async (tx, server) => {
   throw new Error("cannot simulate transaction");
 };
 
-// set source
+export const getAccount = async ({
+  walletId,
+  userPubKey,
+  txBuilderAccount,
+  server,
+}) => {
+  const contract = new Contract(walletId);
 
-// const sourceCreate=server.getAccount()
+  const tx = txBuilderAccount
+    .addOperation(
+      contract.call(
+        "get_account_addr",
+        ...[
+          accountToScVal(userPubKey), // to
+        ]
+      )
+    )
+    .setTimeout(TimeoutInfinite);
 
-// export const getTokenInfo = async (tokenId, arg, txBuilder, server) => {
-//   const tx = txBuilder
-//     .addOperation(contract.call(arg))
-//     .setTimeout(TimeoutInfinite)
-//     .build();
+  const builtRes = tx.build();
+  const walletAccount = await simulateTx(builtRes, server);
 
-//   const result = await simulateTx(tx, server);
-//   return result;
-// };
+  // console.log("the account is", walletBal);
+  return walletAccount;
 
-// export const getTxBuilder = async (pubKey, fee, server, networkPassphrase) => {
-//   const source = await server.getAccount(pubKey);
-//   return new TransactionBuilder(source, {
-//     fee,
-//     networkPassphrase,
-//   });
-// };
+  // return stroopToXlm(walletBal).c.at(0);
+};
+
+export const getWalletBalance = async ({
+  tokenId,
+  walletId,
+  txBuilderBalance,
+  server,
+}) => {
+  const contract = new Contract(tokenId);
+
+  const tx = txBuilderBalance
+    .addOperation(
+      contract.call(
+        "balance",
+        ...[
+          accountToScVal(walletId), // to
+        ]
+      )
+    )
+    .setTimeout(TimeoutInfinite);
+
+  const builtRes = tx.build();
+  const walletBal = await simulateTx(builtRes, server);
+
+  // console.log("the balance is", stroopToXlm(walletBal).c.at(0));
+
+  // return stroopToXlm(walletBal).c.at(0);
+  return walletBal;
+};
 
 export const getTokenInfo = async (tokenId, arg, txBuilder, server) => {
   const contract = new Contract(tokenId);

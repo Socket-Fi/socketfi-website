@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScInt,
   Soroban,
@@ -21,11 +21,24 @@ import {
   submitTx,
   accountToScVal,
   anyInvoke,
+  getAccount,
   loadContract,
+  BASE_FEE,
+  getWalletBalance,
 } from "../../utils/soroban";
 
-import { Copy, AddCircle, CloseCircle, DocumentCode } from "iconsax-react";
+import {
+  Copy,
+  AddCircle,
+  CloseCircle,
+  DocumentCode,
+  ElementPlus,
+  FolderAdd,
+  Receive,
+  Send2,
+} from "iconsax-react";
 import XLMlogo from "../../assets/2024.svg";
+import { contracts } from "../../contract";
 
 export default function InvokeContract({
   userKey,
@@ -48,10 +61,16 @@ export default function InvokeContract({
   const [fileContent, setFileContent] = useState(null);
   const memo = "mint tokens";
   const smartWalletContract =
-    "CABH4AZ26PTXJGHPNO7UOEYYYDHU5FZQGUV7N6G5JYK2FWVOLM3HJW2Q";
+    "CAXIBXMGUWO7KNQRWBNQ5GVLO5OCYSK2HOMNVBZCRPQQNYFSUOYF44WX";
+  const XLMId = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT";
+  const [smartAccount, setSmartAccount] = useState(null);
 
   const selectedNetwork = FUTURENET_DETAILS;
   const { network, networkPassphrase } = selectedNetwork;
+  const [receiveSelected, setReceiveSelected] = useState(true);
+  const [recipient, setRecipient] = useState(userKey);
+  const [tokenId, setTokenId] = useState("");
+  const [amount, setAmount] = useState("");
 
   // console.log("the args are", args);
 
@@ -71,16 +90,6 @@ export default function InvokeContract({
 
     setArgs((prevArgs) => prevArgs.filter((arg) => arg.id !== selectedArg));
   }
-
-  // function stringToArray(input) {
-  //   if (!!input) {
-  //     return input
-  //       .split(",")
-  //       .map((item) => item.trim())
-  //       .filter((item) => item !== "")
-  //       .map(Number);
-  //   }
-  // }
 
   function stringToArray(input) {
     if (!!input) {
@@ -124,14 +133,6 @@ export default function InvokeContract({
     e.preventDefault();
     try {
       setConnecting(() => true);
-
-      const url2 = "https://horizon-futurenet.stellar.org";
-      let hserver = new Horizon.Server(url2);
-
-      const accountLoaded = await hserver.loadAccount(userKey);
-      console.log("it is good ghere");
-      const testMux = new MuxedAccount(accountLoaded, "111");
-      console.log("the mux is", testMux);
 
       let loadedWasm;
 
@@ -180,8 +181,8 @@ export default function InvokeContract({
       const contractId = StrKey.encodeContract(
         result.returnValue._value._value
       );
-      console.log("protocol token id is", contractId);
-      console.log("invoke result", result);
+      // console.log("protocol token id is", contractId);
+      // console.log("invoke result", result);
     } catch (e) {
       alert(e.message);
     } finally {
@@ -220,6 +221,146 @@ export default function InvokeContract({
     reader.readAsArrayBuffer(selectedFile);
   };
 
+  useEffect(() => {
+    async function fetchAccount() {
+      const txBuilder = await getTxBuilder(
+        userKey,
+        BASE_FEE,
+        server,
+        FUTURENET_DETAILS.networkPassphrase
+      );
+
+      const res = await getAccount({
+        walletId: smartWalletContract,
+        userPubKey: userKey,
+        txBuilderAccount: txBuilder,
+        server: server,
+      });
+      setSmartAccount(() => res);
+
+      const txBuilder2 = await getTxBuilder(
+        userKey,
+        BASE_FEE,
+        server,
+        FUTURENET_DETAILS.networkPassphrase
+      );
+
+      const res2 = await getWalletBalance({
+        tokenId: XLMId,
+        walletId: res,
+        txBuilderBalance: txBuilder2,
+        server: server,
+      });
+
+      // console.log("res 2 is", res2);
+    }
+
+    if (userKey?.length > 0) {
+      try {
+        fetchAccount();
+      } catch (e) {
+        console.log("no account found");
+      }
+    }
+  }, [userKey, connecting]);
+
+  const wasmFile = contracts[3]?.wasmfile;
+  async function createAccountHandler() {
+    setConnecting(() => true);
+
+    const wasmFetched = await fetch(wasmFile);
+    const loadedWasmBuffer = await wasmFetched.arrayBuffer();
+
+    const txBuilderUpload = await getTxBuilder(
+      userKey,
+      xlmToStroop(1).toString(),
+      server,
+      selectedNetwork.networkPassphrase
+    );
+
+    const wasm = loadedWasmBuffer;
+
+    const signedXdrLoad = await loadContract(wasm, txBuilderUpload);
+
+    const txHash = await submitTx(signedXdrLoad, networkPassphrase, server);
+    const loadedWasm = txHash.returnValue._value;
+    const createOperation = "create_account_with_addr";
+
+    const invokeArgs = [createOperation];
+    invokeArgs.push(accountToScVal(userKey));
+    invokeArgs.push(nativeToScVal(loadedWasm));
+
+    const txBuiderAnyInvoke = await getTxBuilder(
+      userKey,
+      xlmToStroop(1).toString(),
+      server,
+      selectedNetwork.networkPassphrase
+    );
+
+    const xdr = await anyInvoke(
+      smartWalletContract,
+      invokeArgs,
+      "contract invocation",
+      txBuiderAnyInvoke,
+      server
+    );
+
+    const signedXdr = await signTransaction(xdr, { network: "FUTURENET" });
+
+    await submitTx(signedXdr, networkPassphrase, server);
+    setConnecting(() => false);
+  }
+
+  useEffect(() => {
+    setRecipient(userKey);
+  }, [userKey]);
+
+  function handleRecipientChange(e) {
+    setRecipient(e.target.value);
+  }
+
+  async function handleTransact() {
+    if (amount === 0 || recipient.length === 0 || tokenId.length === 0) {
+      return;
+    }
+    setConnecting(() => true);
+    const txBuiderAnyInvoke = await getTxBuilder(
+      userKey,
+      xlmToStroop(1).toString(),
+      server,
+      selectedNetwork.networkPassphrase
+    );
+    const invokeArgs = [];
+    if (receiveSelected) {
+      invokeArgs.push("receive");
+    } else {
+      invokeArgs.push("send_auth_addr");
+      invokeArgs.push(accountToScVal(userKey));
+    }
+
+    const quantity = Soroban.parseTokenAmount(amount, 7);
+    const actualAmount = new ScInt(quantity).toI128();
+
+    invokeArgs.push(accountToScVal(recipient));
+    invokeArgs.push(accountToScVal(tokenId));
+    invokeArgs.push(actualAmount);
+
+    // console.log("this is the args", invokeArgs)
+
+    const xdr = await anyInvoke(
+      smartAccount,
+      invokeArgs,
+      "Transact",
+      txBuiderAnyInvoke,
+      server
+    );
+
+    const signedXdr = await signTransaction(xdr, { network: "FUTURENET" });
+
+    await submitTx(signedXdr, networkPassphrase, server);
+    setConnecting(() => false);
+  }
+
   return (
     <div className="overflow-x-hidden bg-gray-100">
       <section className=" bg-gray-100 ">
@@ -227,7 +368,7 @@ export default function InvokeContract({
           <div className="max-w-5xl mx-auto  space-y-4">
             <div className="mt-6 overflow-hidden  rounded-xl">
               <div className="px-4 py-6 sm:p-8 bg-white mb-3 rounded-xl">
-                {!loadedContractId && (
+                {smartAccount && (
                   <form
                     method="POST"
                     className="mt-2"
@@ -237,18 +378,14 @@ export default function InvokeContract({
                       <div>
                         <div className=" p-2 ">
                           <h3 className="text-2xl font-normal  text-gray-900">
-                            Your Smart Contract ID is:
+                            Your Smart Wallet is:
                           </h3>
                         </div>
-                        <div className="mt-2.5 relative">
-                          <input
-                            onChange={(e) => setSelectedToken(e.target.value)}
-                            type="text"
-                            name=""
-                            id=""
-                            placeholder="Paste contract ID here"
-                            className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
-                          />
+                        <div className="mt-2.5 text-xl relative">
+                          {smartAccount}
+                        </div>
+                        <div className="mt-4 text-xl relative">
+                          XLM Balance:
                         </div>
                       </div>
                     </div>
@@ -457,24 +594,25 @@ export default function InvokeContract({
                 </>
               )}
 
-              <div className="sm:col-span-2">
-                <button
-                  // onClick={loadContractHandler}
-                  onClick={anyInvokeHandler}
-                  // onClick={(e) => setIvalue(e.target.value)}
-                  className="relative inline-flex items-center justify-center  w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 opacity-60"
-                  role="button"
-                >
-                  {connecting
-                    ? "Processing..."
-                    : "Login to or Create Smart Wallet using Twitter"}
-                </button>
-              </div>
-              {userKey.length > 0 && (
+              {!smartAccount && (
+                <div className="sm:col-span-2">
+                  <button
+                    disabled
+                    // onClick={loadContractHandler}
+                    onClick={anyInvokeHandler}
+                    // onClick={(e) => setIvalue(e.target.value)}
+                    className="relative inline-flex items-center justify-center  w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 opacity-60"
+                    role="button"
+                  >
+                    Login to or Create Smart Wallet using Twitter
+                  </button>
+                </div>
+              )}
+              {userKey.length > 0 && !smartAccount && (
                 <div className="sm:col-span-2">
                   <button
                     // onClick={loadContractHandler}
-                    onClick={anyInvokeHandler}
+                    onClick={createAccountHandler}
                     // onClick={(e) => setIvalue(e.target.value)}
                     className="relative inline-flex items-center mt-4 justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
                     role="button"
@@ -483,6 +621,173 @@ export default function InvokeContract({
                       ? "Processing..."
                       : "Login to or Create Smart Wallet using External Wallet"}
                   </button>
+                </div>
+              )}
+
+              {smartAccount && (
+                <div className="">
+                  <div className="max-w-5xl mx-auto mt-4 bg-white sm:mt-4 space-y-4">
+                    <div className="gap-4 ">
+                      <div className="grid grid-cols-1 gap-6 px-8 text-center md:px-0 md:grid-cols-2">
+                        <button
+                          className={`px-4 py-2  flex items-center text-center justify-center overflow-hidden  rounded-r-full ${
+                            receiveSelected
+                              ? "bg-gray-900 text-gray-50"
+                              : "bg-white text-gray-900"
+                          }`}
+                          onClick={() => setReceiveSelected(true)}
+                        >
+                          {/* <SecuritySafe
+                    size="32"
+                    color="#555555"
+                    className="flex-shrink-0 w-10 h-10 mx-10 text-gray-400"
+                  /> */}
+                          <Receive
+                            size="32"
+                            // color="#555555"
+                            className={`flex-shrink-0 w-10 h-10 mx-10 ${
+                              receiveSelected ? "text-gray-50" : "text-gray-900"
+                            }`}
+                          />
+                          <p className=" text-lg font-medium ">
+                            Receive Tokens
+                          </p>
+                        </button>
+
+                        <button
+                          className={`px-4 py-2  flex items-center text-center justify-center overflow-hidden  rounded-l-full ${
+                            !receiveSelected
+                              ? "bg-gray-900 text-gray-50"
+                              : "bg-white  text-gray-900 "
+                          }`}
+                          onClick={() => setReceiveSelected(false)}
+                        >
+                          <Send2
+                            size="32"
+                            // color="#555555"
+                            className={`flex-shrink-0 w-10 h-10 mx-10 ${
+                              !receiveSelected
+                                ? "text-gray-50"
+                                : "text-gray-900"
+                            }`}
+                          />
+                          <p className=" text-lg font-medium leading-relaxed ">
+                            Send Tokens
+                          </p>
+                        </button>
+                      </div>
+                    </div>
+                    {receiveSelected && (
+                      <div className="">
+                        <div className="pt-4 px-6">
+                          {" "}
+                          <p>
+                            Send tokens from an external wallet to a your smart
+                            wallet. The above smart wallet will be credited
+                          </p>
+                        </div>
+
+                        <div className="mt-1 relative flex gap-2 px-6 py-2 ">
+                          <div className="block w-full">
+                            <div className="block py-4 text-black text-lg font-bold placeholder-gray-500 w-[200px] transition-all duration-200  rounded-md  caret-blue-600">
+                              Token ID:
+                            </div>
+                            <input
+                              onChange={(e) => setTokenId(e.target.value)}
+                              type="text"
+                              name=""
+                              id=""
+                              placeholder="Paste token id here"
+                              className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                            />
+                          </div>
+
+                          <div className="block">
+                            <div className="block py-4 text-black text-lg font-bold placeholder-gray-500 w-[200px] transition-all duration-200  rounded-md  caret-blue-600">
+                              Amount:
+                            </div>
+                            <input
+                              onChange={(e) => setAmount(e.target.value)}
+                              type="text"
+                              name=""
+                              id=""
+                              placeholder="Enter amount"
+                              className="block px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {!receiveSelected && (
+                      <div className="">
+                        <div className="pt-4 px-6">
+                          {" "}
+                          <p>
+                            Send tokens from your smart wallet to an external
+                            wallet. Default recipient is the connected wallet
+                            but you can change it
+                          </p>
+                        </div>
+
+                        <div className="mt-1 relative flex gap-2 px-6 py-2 ">
+                          <div className="block w-full">
+                            <div className="block py-4 text-black text-lg font-bold placeholder-gray-500 w-[200px] transition-all duration-200  rounded-md  caret-blue-600">
+                              Token ID:
+                            </div>
+                            <input
+                              onChange={(e) => setTokenId(e.target.value)}
+                              type="text"
+                              name=""
+                              id=""
+                              placeholder="Paste token id here"
+                              className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                            />
+                          </div>
+
+                          <div className="block">
+                            <div className="block py-4 text-black text-lg font-bold placeholder-gray-500 w-[200px] transition-all duration-200  rounded-md  caret-blue-600">
+                              Amount:
+                            </div>
+                            <input
+                              onChange={(e) => setAmount(e.target.value)}
+                              type="text"
+                              name=""
+                              id=""
+                              placeholder="Enter amount"
+                              className="block px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-1 relative flex gap-2 px-6 py-2 ">
+                          <div className="block w-full">
+                            <div className="block py-4 text-black text-lg font-bold placeholder-gray-500 w-[200px] transition-all duration-200  rounded-md  caret-blue-600">
+                              Recipient:
+                            </div>
+                            <input
+                              onChange={handleRecipientChange}
+                              type="text"
+                              name=""
+                              id=""
+                              value={recipient}
+                              placeholder="Paste recipient here"
+                              className="block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 bg-white border border-gray-200 rounded-md focus:outline-none focus:border-blue-600 caret-blue-600"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <button
+                      // onClick={loadContractHandler}
+                      onClick={handleTransact}
+                      // onClick={(e) => setIvalue(e.target.value)}
+                      className="relative inline-flex items-center mt-4 justify-center w-full px-8 py-4 text-lg font-bold text-white transition-all duration-200 bg-gray-900 font-pj rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+                      role="button"
+                    >
+                      {connecting ? "Processing..." : "Confirm Transfer"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
