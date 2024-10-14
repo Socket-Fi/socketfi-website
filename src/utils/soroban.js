@@ -156,9 +156,15 @@ export const getWalletBalance = async ({
   return walletBal;
 };
 
-export const getTokenInfo = async (tokenId, arg, txBuilder, server) => {
-  const contract = new Contract(tokenId);
-  const contract3 = new Contract(tokenId);
+export const getContractInfo = async ({
+  contractId,
+  arg,
+  txBuilder,
+  server,
+}) => {
+  console.log("the received contract id is", contractId);
+  const contract = new Contract(contractId);
+
   const tx = txBuilder
     .addOperation(contract.call(arg))
     .setTimeout(TimeoutInfinite)
@@ -448,9 +454,7 @@ export const submitTx = async (signedXDR, networkPassphrase, server) => {
       return restx;
     }
   }
-  throw new Error(
-    `Unabled to submit transaction, status: ${sendResponse.status}`
-  );
+  throw new Error(`Unabled to submit transaction, status: ${sendResponse}`);
 };
 
 export const ConnectWallet = async (setUserKey, setNetwork) => {

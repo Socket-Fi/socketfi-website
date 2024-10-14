@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import Logo from "../assets/sorobuildlogo.svg";
+import Logo from "../assets/socketLogo.svg";
 import { Link } from "react-router-dom";
 import { ConnectWallet } from "../utils/soroban";
 
 import { useMediaQuery } from "react-responsive";
+import { ArrowRight2 } from "iconsax-react";
 
 export default function Header({
   setUserKey,
@@ -33,10 +34,7 @@ export default function Header({
   }
 
   return (
-    <header
-      className=" relative py-4 md:py-6 bg-gray-100"
-      x-data="{expanded: false}"
-    >
+    <header className=" relative py-4 md:py-6 " x-data="{expanded: false}">
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="relative flex items-center justify-between ">
           <div className="flex-shrink-0">
@@ -45,8 +43,7 @@ export default function Header({
               title=""
               className="flex rounded items-center outline-none   font-bold text-xl gap-1 "
             >
-              {/* <img className="w-auto h-10 " src={Logo} alt="" /> */}
-              <p>SocketFi</p>
+              <img className="w-auto h-9 " src={Logo} alt="" />
             </Link>
           </div>
 
@@ -123,117 +120,71 @@ export default function Header({
             </Link>
           </div> */}
 
-          <div className="hidden lg:ml-auto lg:flex lg:items-center lg:space-x-10">
-            {/* <a
+          <div className="hidden lg:ml-auto lg:flex  lg:items-center  lg:space-x-10">
+            <a
               href="https://docs.sorobuild.io/"
               title=""
-              className="text-base font-medium  transition-all duration-200 rounded font-pj hover:text-opacity-50 "
+              className="text-base font-medium  transition-all flex  gap-1 items-center justify-center duration-200 rounded font-pj hover:text-opacity-50 "
               target="_blank"
             >
               {" "}
               Documentation
-            </a> */}
-
-            {!isWalletInstalled ? (
-              <a
-                href="https://www.freighter.app/"
-                className="
-                text-center
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-900 text-white
-
-                          
-                        "
-                target="_blank"
+              <svg
+                className="h-5 w-auto"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                Install Freighter
-              </a>
-            ) : connecting ? (
-              <div
-                className="
-                text-center
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-700 text-white
+                <g clip-path="url(#clip0_1077_9075)">
+                  <path
+                    d="M9.16699 14.8887L20.167 3.88867"
+                    stroke="black"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M13.4492 3.53516H20.5203V10.6062"
+                    stroke="black"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M17.5 13.5V16.26C17.5 17.4179 17.5 17.9968 17.2675 18.4359C17.0799 18.7902 16.7902 19.0799 16.4359 19.2675C15.9968 19.5 15.4179 19.5 14.26 19.5H7.74C6.58213 19.5 6.0032 19.5 5.56414 19.2675C5.20983 19.0799 4.92007 18.7902 4.73247 18.4359C4.5 17.9968 4.5 17.4179 4.5 16.26V9.74C4.5 8.58213 4.5 8.0032 4.73247 7.56414C4.92007 7.20983 5.20982 6.92007 5.56414 6.73247C6.0032 6.5 6.58213 6.5 7.74 6.5H11"
+                    stroke="black"
+                    stroke-linecap="round"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_1077_9075">
+                    <rect width="24" height="24" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </a>
 
-                          
-                        "
-              >
-                Connecting...
-              </div>
-            ) : userKey?.length > 0 ? (
-              <button
-                className="
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-900 text-white
-                          
-                        "
-                role="button"
-                onClick={handleConnect}
-              >
-                {userKey?.slice(0, 4)}...{userKey?.slice(-4)}
-              </button>
-            ) : (
-              <button
-                className="
+            <button
+              className="
                       
                             py-2
                             text-base
                             font-semibold
                             leading-7
-                            text-gray-900
+                            text-gray-100
                             transition-all
                             duration-200
-                            bg-transparent
-                            border border-gray-900
+                    
+                         
                             rounded-xl
                             font-pj
                             min-w-[160px]
                             
-                            hover:bg-gray-900 hover:text-white
+                           bg-gray-900
                           
                         "
-                role="button"
-                onClick={handleConnect}
-              >
-                Connect Wallet
-              </button>
-            )}
+              role="button"
+              onClick={handleConnect}
+            >
+              Go to App
+            </button>
           </div>
         </div>
 
@@ -241,147 +192,71 @@ export default function Header({
           <nav x-show="expanded" x-collapse>
             <div className="px-1 py-8">
               <div className="grid gap-y-7">
-                <Link
-                  onClick={toggleExpanded}
-                  to="/contracts"
-                  title=""
-                  className="flex items-center p-3 -m-3 text-base font-medium text-gray-900 transition-all duration-200 rounded-xl hover:bg-gray-50 font-pj "
-                >
-                  {" "}
-                  Smart Contracts
-                </Link>
-
-                <Link
-                  onClick={toggleExpanded}
-                  to="/playground"
-                  title=""
-                  className="flex items-center p-3 -m-3 text-base font-medium text-gray-900 transition-all duration-200 rounded-xl hover:bg-gray-50  font-pj "
-                >
-                  dApp Playground
-                </Link>
-
-                <Link
-                  onClick={toggleExpanded}
-                  to="/sorobuild-ui"
-                  title=""
-                  className="flex items-center p-3 -m-3 text-base font-medium text-gray-900 transition-all duration-200 rounded-xl hover:bg-gray-50 font-pj "
-                >
-                  {" "}
-                  SoroBuild UI
-                </Link>
-
                 <a
                   onClick={toggleExpanded}
                   href="https://docs.sorobuild.io/"
                   title=""
-                  className="text-base font-medium  transition-all duration-200 rounded font-pj hover:text-opacity-50 "
+                  className="text-base font-medium flex gap-1 items-center  transition-all duration-200 rounded font-pj hover:text-opacity-50 "
                   target="_blank"
                 >
                   {" "}
                   Documentation
+                  <svg
+                    className="h-5 w-auto"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clip-path="url(#clip0_1077_9075)">
+                      <path
+                        d="M9.16699 14.8887L20.167 3.88867"
+                        stroke="black"
+                        stroke-linecap="round"
+                      />
+                      <path
+                        d="M13.4492 3.53516H20.5203V10.6062"
+                        stroke="black"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M17.5 13.5V16.26C17.5 17.4179 17.5 17.9968 17.2675 18.4359C17.0799 18.7902 16.7902 19.0799 16.4359 19.2675C15.9968 19.5 15.4179 19.5 14.26 19.5H7.74C6.58213 19.5 6.0032 19.5 5.56414 19.2675C5.20983 19.0799 4.92007 18.7902 4.73247 18.4359C4.5 17.9968 4.5 17.4179 4.5 16.26V9.74C4.5 8.58213 4.5 8.0032 4.73247 7.56414C4.92007 7.20983 5.20982 6.92007 5.56414 6.73247C6.0032 6.5 6.58213 6.5 7.74 6.5H11"
+                        stroke="black"
+                        stroke-linecap="round"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_1077_9075">
+                        <rect width="24" height="24" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
                 </a>
 
-                {!isWalletInstalled ? (
-                  <a
-                    onClick={toggleExpanded}
-                    href="https://www.freighter.app/"
-                    className="
-                text-center
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-900 text-white
-
-                          
-                        "
-                    target="_blank"
-                  >
-                    Install Freighter
-                  </a>
-                ) : connecting ? (
-                  <div
-                    className="
-                text-center
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-700 text-white
-
-                          
-                        "
-                  >
-                    Connecting...
-                  </div>
-                ) : userKey?.length > 0 ? (
-                  <button
-                    className="
-                        
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                           
-                            transition-all
-                            duration-200
-                        
-                            border border-gray-900
-                            rounded-xl
-                            font-pj
-                           min-w-[160px]
-                           bg-gray-900 text-white
-                          
-                        "
-                    role="button"
-                    onClick={handleConnect}
-                  >
-                    {userKey?.slice(0, 4)}...{userKey?.slice(-4)}
-                  </button>
-                ) : (
-                  <button
-                    className="
+                <button
+                  className="
                       
                             py-2
                             text-base
                             font-semibold
                             leading-7
-                            text-gray-900
+                            text-gray-100
                             transition-all
                             duration-200
-                            bg-transparent
-                            border border-gray-900
+                    
+                         
                             rounded-xl
                             font-pj
                             min-w-[160px]
                             
-                            hover:bg-gray-900 hover:text-white
+                           bg-gray-900
                           
                         "
-                    role="button"
-                    onClick={handleConnect}
-                  >
-                    Connect Wallet
-                  </button>
-                )}
+                  role="button"
+                  onClick={handleConnect}
+                >
+                  Go to App
+                </button>
               </div>
             </div>
           </nav>

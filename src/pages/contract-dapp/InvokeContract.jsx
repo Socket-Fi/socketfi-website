@@ -25,6 +25,7 @@ import {
   loadContract,
   BASE_FEE,
   getWalletBalance,
+  getContractInfo,
 } from "../../utils/soroban";
 
 import {
@@ -61,7 +62,7 @@ export default function InvokeContract({
   const [fileContent, setFileContent] = useState(null);
   const memo = "mint tokens";
   const smartWalletContract =
-    "CAXIBXMGUWO7KNQRWBNQ5GVLO5OCYSK2HOMNVBZCRPQQNYFSUOYF44WX";
+    "CDLV4F24STUXTCRL2SQMIKQ6AEU5LBZ7S7H5EQISP3ZMH6CGXU4FWHY3";
   const XLMId = "CB64D3G7SM2RTH6JSGG34DDTFTQ5CFDKVDZJZSODMCX4NJ2HV2KN7OHT";
   const [smartAccount, setSmartAccount] = useState(null);
 
@@ -237,6 +238,7 @@ export default function InvokeContract({
         server: server,
       });
       setSmartAccount(() => res);
+      const contractId = res;
 
       const txBuilder2 = await getTxBuilder(
         userKey,
@@ -245,14 +247,16 @@ export default function InvokeContract({
         FUTURENET_DETAILS.networkPassphrase
       );
 
-      const res2 = await getWalletBalance({
-        tokenId: XLMId,
-        walletId: res,
-        txBuilderBalance: txBuilder2,
+      console.log("the contract id is", contractId);
+
+      const contractInfo = await getContractInfo({
+        contractId: res,
+        arg: "get_tokens",
+        txBuilder: txBuilder2,
         server: server,
       });
 
-      // console.log("res 2 is", res2);
+      console.log("contract info is", contractInfo);
     }
 
     if (userKey?.length > 0) {
@@ -266,6 +270,9 @@ export default function InvokeContract({
 
   const wasmFile = contracts[3]?.wasmfile;
   async function createAccountHandler() {
+    console.log("the value of None", nativeToScVal(null));
+    console.log("the value of NaN", nativeToScVal(NaN));
+    return;
     setConnecting(() => true);
 
     const wasmFetched = await fetch(wasmFile);

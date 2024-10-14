@@ -11,6 +11,7 @@ import DappComponents from "./pages/dapp-components/DappComponents";
 
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import NotFound from "./not-found/NotFound";
+import "./App.css";
 
 function App() {
   const [userkey, setUserKey] = useState("");
@@ -45,7 +46,7 @@ function App() {
           <Route
             path="/"
             element={
-              <ContractDapp
+              <Home
                 userKey={userkey}
                 setNetwork={setNetwork}
                 setUserKey={setUserKey}
@@ -55,9 +56,9 @@ function App() {
               />
             }
           />
-          {/* <Route path="/playground" element={<Wallet />} />
+          <Route path="/playground" element={<Wallet />} />
 
-          <Route path="/sorobuild-ui" element={<DappComponents />} /> */}
+          {/* <Route path="/sorobuild-ui" element={<DappComponents />} /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
