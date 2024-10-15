@@ -165,23 +165,26 @@ export default function Header({
               href="https://app.socket.fi/"
               title=""
               className="
-                      
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                            text-gray-100
-                            transition-all
-                            duration-200
-                    
-                         
-                            rounded-xl
-                            font-pj
-                            min-w-[160px]
-                            
-                           bg-gray-900
-                          
-                        "
+                        relative
+                        inline-flex
+                        items-center
+                        justify-center
+                        w-48
+                        px-8
+                        py-2
+                        text-base
+                        font-bold
+                        text-white
+                        transition-all
+                        duration-200
+                        bg-gray-900
+                        border-2 border-transparent
+                        sm:w-auto
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
+                        font-pj
+                        hover:bg-opacity-90
+                        rounded-xl
+                    "
               target="_blank"
             >
               Go to App
@@ -239,23 +242,26 @@ export default function Header({
                   href="https://app.socket.fi/"
                   title=""
                   className="
-                      
-                            py-2
-                            text-base
-                            font-semibold
-                            leading-7
-                            text-gray-100
-                            transition-all
-                            duration-200
-                    
-                         
-                            rounded-xl
-                            font-pj
-                            min-w-[160px]
-                            
-                           bg-gray-900
-                          
-                        "
+                        relative
+                        inline-flex
+                        items-center
+                        justify-center
+                        w-full
+                        px-8
+                        py-2
+                        text-base
+                        font-bold
+                        text-white
+                        transition-all
+                        duration-200
+                        bg-gray-900
+                        border-2 border-transparent
+                        sm:w-auto
+                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900
+                        font-pj
+                        hover:bg-opacity-90
+                        rounded-xl
+                    "
                   target="_blank"
                 >
                   Go to App
