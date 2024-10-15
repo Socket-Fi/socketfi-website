@@ -122,7 +122,7 @@ export default function Header({
 
           <div className="hidden lg:ml-auto lg:flex  lg:items-center  lg:space-x-10">
             <a
-              href="https://docs.sorobuild.io/"
+              href="https://docs.socket.fi/"
               title=""
               className="text-base font-medium  transition-all flex  gap-1 items-center justify-center duration-200 rounded font-pj hover:text-opacity-50 "
               target="_blank"
@@ -161,7 +161,9 @@ export default function Header({
               </svg>
             </a>
 
-            <button
+            <a
+              href="https://app.socket.fi/"
+              title=""
               className="
                       
                             py-2
@@ -180,11 +182,10 @@ export default function Header({
                            bg-gray-900
                           
                         "
-              role="button"
-              onClick={handleConnect}
+              target="_blank"
             >
               Go to App
-            </button>
+            </a>
           </div>
         </div>
 
@@ -194,7 +195,7 @@ export default function Header({
               <div className="grid gap-y-7">
                 <a
                   onClick={toggleExpanded}
-                  href="https://docs.sorobuild.io/"
+                  href="https://docs.socket.fi/"
                   title=""
                   className="text-base font-medium flex gap-1 items-center  transition-all duration-200 rounded font-pj hover:text-opacity-50 "
                   target="_blank"
@@ -233,7 +234,10 @@ export default function Header({
                   </svg>
                 </a>
 
-                <button
+                <a
+                  onClick={toggleExpanded}
+                  href="https://app.socket.fi/"
+                  title=""
                   className="
                       
                             py-2
@@ -252,11 +256,10 @@ export default function Header({
                            bg-gray-900
                           
                         "
-                  role="button"
-                  onClick={handleConnect}
+                  target="_blank"
                 >
                   Go to App
-                </button>
+                </a>
               </div>
             </div>
           </nav>

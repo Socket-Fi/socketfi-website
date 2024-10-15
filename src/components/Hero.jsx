@@ -96,7 +96,7 @@ export default function Hero() {
 
             <div className="flex flex-col items-center mt-8 lg:justify-start sm:justify-center sm:flex-row lg:mt-16 sm:space-x-5">
               <a
-                href="#"
+                href="https://app.socket.fi/"
                 title=""
                 className="
                         relative
@@ -119,13 +119,13 @@ export default function Hero() {
                         hover:bg-opacity-90
                         rounded-xl
                     "
-                role="button"
+                target="_blank"
               >
                 Go to App
               </a>
 
               <a
-                href="#"
+                href="https://docs.socket.fi/"
                 title=""
                 className="
           
@@ -153,7 +153,7 @@ export default function Hero() {
                         hover:border-gray-900
                         focus:border-gray-900
                     "
-                role="button"
+                target="_blank"
               >
                 Documentation
                 <div className="">
