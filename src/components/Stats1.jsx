@@ -6,7 +6,7 @@ export default function Stats1() {
       <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="text-center">
           <h4 className="text-xl font-medium text-gray-900">
-            Numbers tell the hard works we’ve done in last 6 years
+            SocketFi smart wallet FUTURENET statistics
           </h4>
         </div>
 
@@ -29,9 +29,9 @@ export default function Stats1() {
                   />
                 </svg>
                 <div className="ml-4">
-                  <h4 className="text-4xl font-bold text-gray-900">6+</h4>
+                  <h4 className="text-2xl font-bold text-gray-900">24,003</h4>
                   <p className="mt-1.5 text-lg font-medium leading-tight text-gray-500">
-                    Years in business
+                    No. of transactions
                   </p>
                 </div>
               </div>
@@ -56,9 +56,9 @@ export default function Stats1() {
                   />
                 </svg>
                 <div className="ml-4">
-                  <h4 className="text-4xl font-bold text-gray-900">37+</h4>
+                  <h4 className="text-2xl font-bold text-gray-900">102</h4>
                   <p className="mt-1.5 text-lg font-medium leading-tight text-gray-500">
-                    Team members
+                    No. of users
                   </p>
                 </div>
               </div>
@@ -83,9 +83,9 @@ export default function Stats1() {
                   />
                 </svg>
                 <div className="ml-4">
-                  <h4 className="text-4xl font-bold text-gray-900">3,274</h4>
+                  <h4 className="text-2xl font-bold text-gray-900">$3,274</h4>
                   <p className="mt-1.5 text-lg font-medium leading-tight text-gray-500">
-                    Projects delivered
+                    Total asset value
                   </p>
                 </div>
               </div>
@@ -110,9 +110,9 @@ export default function Stats1() {
                   />
                 </svg>
                 <div className="ml-4">
-                  <h4 className="text-4xl font-bold text-gray-900">98%</h4>
+                  <h4 className="text-2xl font-bold text-gray-900">$23,000</h4>
                   <p className="mt-1.5 text-lg font-medium leading-tight text-gray-500">
-                    Customer success
+                    Daily Volume
                   </p>
                 </div>
               </div>
