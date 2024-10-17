@@ -117,7 +117,7 @@ export default function Stats1({ appStats }) {
                 </svg>
                 <div className="ml-4">
                   <h4 className="text-2xl font-bold text-gray-900">
-                    {appStats?.assetValue}
+                    ${appStats?.assetValue.toFixed(2)}
                   </h4>
                   <p className="mt-1.5 text-lg font-medium leading-tight text-gray-500">
                     Total asset value
