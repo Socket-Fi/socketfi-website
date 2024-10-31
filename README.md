@@ -1,16 +1,20 @@
-# SoroBuild
+# SocketFi
 
-##### _SoroBuild is an infrastructure project that provide users and projects with a nocode Soroban contract and dApp development, testing/deployment and management environment._
+##### _SocketFi: The Smart Wallet Super App on Soroban and Stellar Lumen_
 
-SoroBuild is a no-code Soroban dApp development and management enviroment that provide developers building on the Soroban smart contracts platform with the tools to build, test, and deploy dApps faster. Additionally, it provides contract management features, allowing developers to seamlessly interact with their dApp, facilitating the ability to test dApps integration with UI and wallets, without having to build any of these components.
+SocketFi is a smart wallet dApp designed to connect millions of social media users to Web3 seamlessly. It offers a non-custodial alternative to conventional private key and seed phrase wallets, allowing users to create smart wallets using social media sign-in.
 
 ### Features
+SocketFi has several great feature and some of these include:
 
-SoroBuild has 3 main features but, here we focus on one of our main freatures outlined below:
+Social Media Sign-in: Ability for our users to create secure, non-custodial wallets with ease using familiar platforms like Twitter or Google, making it accessible to mainstream users without worrying about private key management.
 
-No-code soroban smart contract deployment, invocation and management tool:
-SoroBuild provides developers and projects with a no-code Soroban smart contract tool that facilitates seamless deployment and invocation of smart contracts. This tool aims to reduce setup time and the time spent by less experienced developers in debugging, deployment, and invoking common Soroban smart contracts and libraries. For example, a project requiring token deployment solely for testing their dApp need not invest significant time in doing so. Instead, they can use this tool to deploy, initialize, and mint test tokens in under 5 minutes. This tool also offers the deployment and interaction with other smart contracts like liquidity/staking and governance contracts, among others.
-You can try out the tool at: https://www.sorobuild.io/contracts
-# socketfi-dapp
-# socketfi-web
-# socketfi-website
+Gas-Free Transactions: The smart wallet handles gas fees automatically, allowing users to transact seamlessly without needing to manage gas costs or wallet balances.
+
+dApp Integration: Users can access and interact with decentralized applications (dApps), swap, trade, participate in DeFi protocols, and explore other Web3 use cases directly from the SocketFi app.
+
+Smart Transact: One of SocketFi's standout features is Smart Transact, enabling users to securely automate transactions. Whether it's setting automatic trades at key price levels on decentralized exchanges (DEXs) or rebalancing assets in their portfolio or any supported DeFi protocol, Smart Transact offers powerful tools to optimize your Web3 interactions.
+
+Earn Points, Rewards with Quests, Bounties, and Airdrops: SocketFi isn’t just a wallet—it's a rewards-driven platform. Users are encouraged to engage through quests, bounties, and airdrops. By participating in activities on the app, users can earn on-chain loyalty points and instant engage-to-earn rewards, further enriching their Web3 experience.
+
+
